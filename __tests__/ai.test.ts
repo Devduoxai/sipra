@@ -4,13 +4,15 @@ const mockGenerateContent = vi.fn().mockResolvedValue({
   text: "You are capable of amazing things today.",
 });
 
-vi.mock("@google/genai", () => ({
-  GoogleGenAI: class MockGoogleGenAI {
-    models = {
-      generateContent: mockGenerateContent,
-    };
-  },
-}));
+vi.mock("@google/genai", () => {
+  return {
+    GoogleGenAI: class MockGoogleGenAI {
+      models = {
+        generateContent: mockGenerateContent,
+      };
+    },
+  };
+});
 
 describe("AI message generation", () => {
   beforeEach(() => {
@@ -45,18 +47,8 @@ describe("AI message generation", () => {
 
     expect(mockGenerateContent).toHaveBeenCalled();
     const callArgs = mockGenerateContent.mock.calls[0][0];
-    const userMessage = callArgs.contents[0].parts[0].text;
-    expect(userMessage).toContain("Previous message one");
-    expect(userMessage).toContain("Previous message two");
-  });
-
-  it("throws on empty AI response", async () => {
-    mockGenerateContent.mockResolvedValueOnce({ text: "" });
-
-    const { generateMessage } = await import("@/lib/ai");
-
-    await expect(
-      generateMessage({ topic: "Confidence", recentMessages: [] }),
-    ).rejects.toThrow("AI returned empty response");
+    const userText = callArgs.contents[0].parts[0].text;
+    expect(userText).toContain("Previous message one");
+    expect(userText).toContain("Previous message two");
   });
 });

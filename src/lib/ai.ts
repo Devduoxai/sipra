@@ -10,7 +10,7 @@ function getClient(): GoogleGenAI {
   return client;
 }
 
-const SYSTEM_PROMPT = `You are Spira, a daily positivity message writer. Generate short, uplifting, personalized messages.
+const SYSTEM_PROMPT = `You are Sipra, a daily positivity message writer. Generate short, uplifting, personalized messages.
 
 Rules:
 - 15-40 words
@@ -47,11 +47,14 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
     contents: [
       {
         role: "user",
-        parts: [{ text: `Write a daily positivity message about "${topic}".${recentContext}` }],
+        parts: [
+          {
+            text: `${SYSTEM_PROMPT}\n\nWrite a daily positivity message about "${topic}".${recentContext}`,
+          },
+        ],
       },
     ],
     config: {
-      systemInstruction: SYSTEM_PROMPT,
       maxOutputTokens: 100,
       temperature: 0.9,
     },
