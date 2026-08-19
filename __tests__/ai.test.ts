@@ -1,20 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const mockCreate = vi.fn().mockResolvedValue({
-  choices: [{ message: { content: "You are capable of amazing things today." } }],
+const mockGenerateContent = vi.fn().mockResolvedValue({
+  text: "You are capable of amazing things today.",
 });
 
-vi.mock("openai", () => {
-  return {
-    default: class MockOpenAI {
-      chat = {
-        completions: {
-          create: mockCreate,
-        },
-      };
-    },
-  };
-});
+vi.mock("@google/genai", () => ({
+  GoogleGenAI: class MockGoogleGenAI {
+    models = {
+      generateContent: mockGenerateContent,
+    };
+  },
+}));
 
 describe("AI message generation", () => {
   beforeEach(() => {
@@ -36,8 +32,8 @@ describe("AI message generation", () => {
   });
 
   it("includes recent messages in context to avoid repetition", async () => {
-    mockCreate.mockResolvedValueOnce({
-      choices: [{ message: { content: "Fresh message here." } }],
+    mockGenerateContent.mockResolvedValueOnce({
+      text: "Fresh message here.",
     });
 
     const { generateMessage } = await import("@/lib/ai");
@@ -47,10 +43,20 @@ describe("AI message generation", () => {
       recentMessages: ["Previous message one", "Previous message two"],
     });
 
-    expect(mockCreate).toHaveBeenCalled();
-    const callArgs = mockCreate.mock.calls[0][0];
-    const userMessage = callArgs.messages.find((m: { role: string }) => m.role === "user");
-    expect(userMessage?.content).toContain("Previous message one");
-    expect(userMessage?.content).toContain("Previous message two");
+    expect(mockGenerateContent).toHaveBeenCalled();
+    const callArgs = mockGenerateContent.mock.calls[0][0];
+    const userMessage = callArgs.contents[0].parts[0].text;
+    expect(userMessage).toContain("Previous message one");
+    expect(userMessage).toContain("Previous message two");
+  });
+
+  it("throws on empty AI response", async () => {
+    mockGenerateContent.mockResolvedValueOnce({ text: "" });
+
+    const { generateMessage } = await import("@/lib/ai");
+
+    await expect(
+      generateMessage({ topic: "Confidence", recentMessages: [] }),
+    ).rejects.toThrow("AI returned empty response");
   });
 });
