@@ -95,3 +95,42 @@ sipra/
 ## License
 
 Private — Phase 1 Beta
+
+## Supabase Setup (Production Database)
+
+1. Go to [supabase.com](https://supabase.com) and sign up (free)
+2. Click "New Project"
+   - Name: `sipra`
+   - Database password: save this somewhere
+   - Region: pick closest to your users
+3. Go to **Settings → Database**
+4. Under "Connection string", click "URI" and copy the URL
+5. Format: `postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres`
+6. Use this as your `DATABASE_URL` in Vercel environment variables
+
+## Deploy to Vercel
+
+1. Install Vercel CLI: `npm i -g vercel`
+2. Login: `vercel login`
+3. Deploy: `vercel` (from sipra directory)
+4. Go to Vercel Dashboard → Project → Settings → Environment Variables
+5. Add these variables:
+
+| Variable | Value |
+|----------|-------|
+| `DATABASE_URL` | Your Supabase PostgreSQL URL |
+| `RESEND_API_KEY` | Your Resend API key |
+| `GEMINI_API_KEY` | Your Gemini API key |
+| `ADMIN_KEY` | Any secret string for admin dashboard |
+| `CRON_SECRET` | Any random string for cron auth |
+| `NEXT_PUBLIC_APP_URL` | Your Vercel URL (e.g. `https://sipra.vercel.app`) |
+
+6. Update `prisma/schema.prisma` — change `provider = "sqlite"` to `provider = "postgresql"`
+7. Push schema: `DATABASE_URL="your-url" pnpm db:push`
+8. Redeploy: `vercel --prod`
+
+## Cron Job
+
+Messages are sent once daily at **1:00 PM UTC (7:00 AM CST/CDT)**.
+
+Users receive messages based on their chosen `deliveryTime` preference.
