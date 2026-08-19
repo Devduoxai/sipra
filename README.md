@@ -10,7 +10,7 @@ Sipra is a daily positivity email service. Users sign up, pick topics they care 
 - **Language:** TypeScript (strict)
 - **Database:** PostgreSQL (Supabase) + Prisma
 - **Email:** Resend
-- **AI:** OpenAI (GPT-4o-mini)
+- **AI:** Gemini 2.0 Flash (free tier)
 - **Validation:** Zod
 - **Testing:** Vitest
 - **Styling:** Tailwind CSS
@@ -45,9 +45,11 @@ Sipra is a daily positivity email service. Users sign up, pick topics they care 
 
    Then edit `.env.local` and fill in your API keys:
 
-   - `OPENAI_API_KEY` — from [OpenAI](https://platform.openai.com/api-keys)
+   - `GEMINI_API_KEY` — from [Google AI Studio](https://aistudio.google.com/apikey) (free tier)
    - `RESEND_API_KEY` — from [Resend](https://resend.com/api-keys)
-   - `DATABASE_URL` — your PostgreSQL connection string (e.g. from [Supabase](https://supabase.com))
+   - `ADMIN_KEY` — your admin dashboard key (any string)
+   - `CRON_SECRET` — secret for Vercel cron job authentication
+   - `NEXT_PUBLIC_APP_URL` — your app URL (e.g. `https://sipra.vercel.app`)
 
 4. **Set up the database**
 
