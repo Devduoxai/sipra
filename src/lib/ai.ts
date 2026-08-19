@@ -1,11 +1,11 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import type { Topic } from "@/types";
 
-let client: OpenAI | null = null;
+let client: GoogleGenAI | null = null;
 
-function getClient(): OpenAI {
+function getClient(): GoogleGenAI {
   if (!client) {
-    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   }
   return client;
 }
@@ -42,20 +42,22 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
       ? `\n\nRecent messages to avoid repeating:\n${recentMessages.map((m) => `- ${m}`).join("\n")}`
       : "";
 
-  const response = await getClient().chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+  const response = await getClient().models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: [
       {
         role: "user",
-        content: `Write a daily positivity message about "${topic}".${recentContext}`,
+        parts: [{ text: `Write a daily positivity message about "${topic}".${recentContext}` }],
       },
     ],
-    max_tokens: 100,
-    temperature: 0.9,
+    config: {
+      systemInstruction: SYSTEM_PROMPT,
+      maxOutputTokens: 100,
+      temperature: 0.9,
+    },
   });
 
-  const content = response.choices[0]?.message?.content;
+  const content = response.text;
   if (!content) {
     throw new Error("AI returned empty response");
   }
