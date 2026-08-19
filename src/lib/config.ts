@@ -9,7 +9,7 @@ function getEnv(name: string, required = true): string {
 export const config = {
   databaseUrl: getEnv("DATABASE_URL"),
   resendApiKey: getEnv("RESEND_API_KEY"),
-  openaiApiKey: getEnv("OPENAI_API_KEY"),
+  geminiApiKey: getEnv("GEMINI_API_KEY"),
   cronSecret: getEnv("CRON_SECRET", false),
   appUrl: getEnv("NEXT_PUBLIC_APP_URL", false) || "http://localhost:3000",
 } as const;
