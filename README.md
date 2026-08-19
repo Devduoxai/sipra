@@ -44,11 +44,11 @@ Sipra is a daily positivity email service. Users sign up, pick topics they care 
    cp .env.example .env.local
    ```
 
-   Then edit `.env.local` and fill in your API keys:
+   Then edit `.env.local` and fill in your API keys (see [API Keys](#api-keys) below):
 
-   - `GEMINI_API_KEY` — see [How to get a Gemini API key](#how-to-get-a-gemini-api-key) below
-   - `RESEND_API_KEY` — from [Resend](https://resend.com/api-keys)
-   - `DATABASE_URL` — your PostgreSQL connection string (e.g. from [Supabase](https://supabase.com))
+   - `GEMINI_API_KEY` — for AI message generation
+   - `RESEND_API_KEY` — for sending emails
+   - `DATABASE_URL` — PostgreSQL connection string
 
 4. **Set up the database**
 
@@ -67,24 +67,52 @@ Sipra is a daily positivity email service. Users sign up, pick topics they care 
 
    Visit [http://localhost:3000](http://localhost:3000) to see the landing page.
 
-## How to Get a Gemini API Key
+## API Keys
 
-The Gemini API has a **free tier** — no credit card required.
+You need three API keys. All have free tiers.
+
+### Gemini API Key (AI)
 
 1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
 2. Sign in with your Google account
 3. Click **"Create API key"**
 4. Copy the key
-5. Paste it in `.env.local`:
 
    ```
    GEMINI_API_KEY=your-key-here
    ```
 
-**Free tier limits:**
-- 500 requests/day
-- 10 requests/minute
-- More than enough for hundreds of users
+Free tier: 500 requests/day, no credit card.
+
+### Resend API Key (Email)
+
+1. Go to [resend.com](https://resend.com)
+2. Sign up (free, no credit card)
+3. Go to **API Keys** in the dashboard
+4. Click **"Create API Key"**
+5. Copy the key
+
+   ```
+   RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
+   ```
+
+Free tier: 100 emails/day, 3,000/month.
+
+### Supabase Database URL
+
+1. Go to [supabase.com](https://supabase.com)
+2. Sign up (free, no credit card)
+3. Click **"New project"**
+4. Name it `sipra`, set a database password
+5. Choose a region close to you
+6. Go to **Settings → Database**
+7. Copy the **Connection string → URI**
+
+   ```
+   DATABASE_URL=postgresql://postgres.xxxxx:your-password@aws-0-region.pooler.supabase.com:6543/postgres
+   ```
+
+Free tier: 500MB database, 50,000 monthly active users.
 
 ## Scripts
 
@@ -115,13 +143,13 @@ Sipra is a Next.js app, so it deploys to Vercel with zero config.
 
 ### 3. Add environment variables
 
-In the Vercel dashboard, go to **Settings → Environment Variables** and add:
+In the Vercel dashboard, go to **Settings → Environment Variables** and add the same three keys from [API Keys](#api-keys):
 
-| Key | Value |
-|-----|-------|
-| `GEMINI_API_KEY` | Your key from [AI Studio](https://aistudio.google.com/apikey) |
-| `RESEND_API_KEY` | Your key from [Resend](https://resend.com/api-keys) |
-| `DATABASE_URL` | Your PostgreSQL connection string (e.g. from [Supabase](https://supabase.com)) |
+| Key | Where to get it |
+|-----|-----------------|
+| `GEMINI_API_KEY` | [AI Studio](https://aistudio.google.com/apikey) |
+| `RESEND_API_KEY` | [Resend](https://resend.com) |
+| `DATABASE_URL` | [Supabase](https://supabase.com) |
 
 Set each variable for **Production**, **Preview**, and **Development**.
 
