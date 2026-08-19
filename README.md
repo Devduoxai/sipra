@@ -15,31 +15,56 @@ Sipra is a daily positivity email service. Users sign up, pick topics they care 
 - **Testing:** Vitest
 - **Styling:** Tailwind CSS
 
-## Getting Started
+## Run Locally
 
-1. Install dependencies:
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 20 or later
+- [pnpm](https://pnpm.io/) 11 or later
+
+### Steps
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/Devduoxai/sipra.git
+   cd sipra
+   ```
+
+2. **Install dependencies**
 
    ```bash
    pnpm install
    ```
 
-2. Copy environment variables:
+3. **Set up environment variables**
 
    ```bash
    cp .env.example .env.local
    ```
 
-3. Set up database:
+   Then edit `.env.local` and fill in your API keys:
+
+   - `OPENAI_API_KEY` — from [OpenAI](https://platform.openai.com/api-keys)
+   - `RESEND_API_KEY` — from [Resend](https://resend.com/api-keys)
+   - `DATABASE_URL` — your PostgreSQL connection string (e.g. from [Supabase](https://supabase.com))
+
+4. **Set up the database**
 
    ```bash
    pnpm db:generate
    pnpm db:push
    ```
 
-4. Start dev server:
+5. **Start the development server**
+
    ```bash
    pnpm dev
    ```
+
+6. **Open in browser**
+
+   Visit [http://localhost:3000](http://localhost:3000) to see the landing page.
 
 ## Scripts
 
@@ -55,7 +80,7 @@ Sipra is a daily positivity email service. Users sign up, pick topics they care 
 ## Project Structure
 
 ```
-spira/
+sipra/
 ├── prisma/          # Database schema
 ├── src/
 │   ├── app/         # Next.js pages and API routes
