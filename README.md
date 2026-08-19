@@ -14,6 +14,7 @@ Sipra is a daily positivity email service. Users sign up, pick topics they care 
 - **Validation:** Zod
 - **Testing:** Vitest
 - **Styling:** Tailwind CSS
+- **Hosting:** Vercel
 
 ## Run Locally
 
@@ -95,6 +96,47 @@ The Gemini API has a **free tier** — no credit card required.
 | `pnpm lint`      | Run ESLint               |
 | `pnpm typecheck` | TypeScript checking      |
 | `pnpm format`    | Format with Prettier     |
+
+## Deploy to Vercel
+
+Sipra is a Next.js app, so it deploys to Vercel with zero config.
+
+### 1. Create a Vercel account
+
+1. Go to [vercel.com/signup](https://vercel.com/signup)
+2. Click **"Continue with GitHub"** (no credit card needed)
+
+### 2. Import the project
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Select **"Import Git Repository"**
+3. Select `Devduoxai/sipra`
+4. Click **"Import"**
+
+### 3. Add environment variables
+
+In the Vercel dashboard, go to **Settings → Environment Variables** and add:
+
+| Key | Value |
+|-----|-------|
+| `GEMINI_API_KEY` | Your key from [AI Studio](https://aistudio.google.com/apikey) |
+| `RESEND_API_KEY` | Your key from [Resend](https://resend.com/api-keys) |
+| `DATABASE_URL` | Your PostgreSQL connection string (e.g. from [Supabase](https://supabase.com)) |
+
+Set each variable for **Production**, **Preview**, and **Development**.
+
+### 4. Deploy
+
+Click **"Deploy"**. Done.
+
+Every push to `master` auto-deploys to production. PRs get preview URLs.
+
+### Free tier
+
+- 100 GB bandwidth/month — enough for thousands of users
+- 1M function invocations/month
+- 6,000 build minutes/month
+- Free tier is for non-commercial use (beta/early stage is fine)
 
 ## Project Structure
 
