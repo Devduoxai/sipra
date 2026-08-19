@@ -1,7 +1,10 @@
 allowBuilds:
   '@google/genai': true
-  "@prisma/engines": true
+  '@prisma/engines': true
   prisma: true
   protobufjs: true
-  sharp: false
-  unrs-resolver: false
+onlyBuiltDependencies:
+  - "@google/genai"
+  - "@prisma/engines"
+  - prisma
+  - protobufjs
