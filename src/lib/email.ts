@@ -1,3 +1,19 @@
+import { google } from "googleapis";
+
+let gmailClient: ReturnType<typeof google.gmail> | null = null;
+
+function getGmail() {
+  if (!gmailClient) {
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GMAIL_CLIENT_ID,
+      process.env.GMAIL_CLIENT_SECRET,
+    );
+    oauth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
+    gmailClient = google.gmail({ version: "v1", auth: oauth2Client });
+  }
+  return gmailClient;
+}
+
 export interface SendEmailInput {
   to: string;
   subject: string;
@@ -10,34 +26,35 @@ export interface SendEmailResult {
   error?: string;
 }
 
+function buildRawEmail(to: string, subject: string, html: string): string {
+  const from = process.env.GMAIL_SENDER_EMAIL || "devduoxai@gmail.com";
+  const messageParts = [
+    `From: Sipra <${from}>`,
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    "MIME-Version: 1.0",
+    "Content-Type: text/html; charset=UTF-8",
+    "",
+    html,
+  ];
+  return Buffer.from(messageParts.join("\r\n"))
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
 export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult> {
   try {
-    const apiKey = process.env.BREVO_API_KEY;
-    if (!apiKey) {
-      return { success: false, error: "BREVO_API_KEY not set" };
-    }
+    const gmail = getGmail();
+    const raw = buildRawEmail(input.to, input.subject, input.html);
 
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "api-key": apiKey,
-      },
-      body: JSON.stringify({
-        sender: { name: "Sipra", email: process.env.BREVO_SENDER_EMAIL || "devduoxai@gmail.com" },
-        to: [{ email: input.to }],
-        subject: input.subject,
-        htmlContent: input.html,
-      }),
+    const result = await gmail.users.messages.send({
+      userId: "me",
+      requestBody: { raw },
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return { success: false, error: data.message || "Brevo API error" };
-    }
-
-    return { success: true, id: String(data.messageId) };
+    return { success: true, id: result.data.id ?? undefined };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown email error";
     return { success: false, error: message };

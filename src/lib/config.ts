@@ -8,7 +8,9 @@ function getEnv(name: string, required = true): string {
 
 export const config = {
   databaseUrl: getEnv("DATABASE_URL"),
-  brevoApiKey: getEnv("BREVO_API_KEY"),
+  gmailClientId: getEnv("GMAIL_CLIENT_ID"),
+  gmailClientSecret: getEnv("GMAIL_CLIENT_SECRET"),
+  gmailRefreshToken: getEnv("GMAIL_REFRESH_TOKEN"),
   geminiApiKey: getEnv("GEMINI_API_KEY"),
   cronSecret: getEnv("CRON_SECRET", false),
   appUrl: getEnv("NEXT_PUBLIC_APP_URL", false) || "http://localhost:3000",

@@ -1,15 +1,31 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-describe("email service", () => {
-  let fetchSpy: ReturnType<typeof vi.spyOn>;
+const mockSend = vi.fn().mockResolvedValue({ data: { id: "test-email-id" } });
 
+vi.mock("googleapis", () => {
+  return {
+    google: {
+      auth: {
+        OAuth2: class MockOAuth2 {
+          setCredentials() {}
+          generateAuthUrl() { return "http://mock"; }
+        },
+      },
+      gmail: () => ({
+        users: { messages: { send: mockSend } },
+      }),
+    },
+  };
+});
+
+describe("email service", () => {
   beforeEach(() => {
-    process.env.BREVO_API_KEY = "test-key";
-    process.env.BREVO_SENDER_EMAIL = "test@gmail.com";
+    process.env.GMAIL_CLIENT_ID = "test-client-id";
+    process.env.GMAIL_CLIENT_SECRET = "test-client-secret";
+    process.env.GMAIL_REFRESH_TOKEN = "test-refresh-token";
+    process.env.GMAIL_SENDER_EMAIL = "test@gmail.com";
     process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
-    fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify({ messageId: "test-email-id" }), { status: 200 }),
-    );
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -27,16 +43,10 @@ describe("email service", () => {
 
     expect(result.success).toBe(true);
     expect(result.id).toBe("test-email-id");
-    expect(fetchSpy).toHaveBeenCalledWith(
-      "https://api.brevo.com/v3/smtp/email",
-      expect.objectContaining({ method: "POST" }),
-    );
   });
 
-  it("returns error on API failure", async () => {
-    fetchSpy.mockResolvedValueOnce(
-      new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 }),
-    );
+  it("returns error on failure", async () => {
+    mockSend.mockRejectedValueOnce(new Error("Auth failed"));
 
     const { sendEmail } = await import("@/lib/email");
 
@@ -47,7 +57,7 @@ describe("email service", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("Unauthorized");
+    expect(result.error).toBe("Auth failed");
   });
 
   it("builds message email with correct structure", async () => {
