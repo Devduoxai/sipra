@@ -1,18 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-const mockSend = vi.fn().mockResolvedValue({ data: { id: "test-email-id" } });
+const mockSendMail = vi.fn().mockResolvedValue({ messageId: "test-email-id" });
 
-vi.mock("googleapis", () => {
+vi.mock("nodemailer", () => {
   return {
-    google: {
-      auth: {
-        OAuth2: class MockOAuth2 {
-          setCredentials() {}
-          generateAuthUrl() { return "http://mock"; }
-        },
-      },
-      gmail: () => ({
-        users: { messages: { send: mockSend } },
+    default: {
+      createTransport: () => ({
+        sendMail: mockSendMail,
       }),
     },
   };
@@ -20,10 +14,8 @@ vi.mock("googleapis", () => {
 
 describe("email service", () => {
   beforeEach(() => {
-    process.env.GMAIL_CLIENT_ID = "test-client-id";
-    process.env.GMAIL_CLIENT_SECRET = "test-client-secret";
-    process.env.GMAIL_REFRESH_TOKEN = "test-refresh-token";
     process.env.GMAIL_SENDER_EMAIL = "test@gmail.com";
+    process.env.GMAIL_APP_PASSWORD = "test-password";
     process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
     vi.clearAllMocks();
   });
@@ -46,7 +38,7 @@ describe("email service", () => {
   });
 
   it("returns error on failure", async () => {
-    mockSend.mockRejectedValueOnce(new Error("Auth failed"));
+    mockSendMail.mockRejectedValueOnce(new Error("SMTP error"));
 
     const { sendEmail } = await import("@/lib/email");
 
@@ -57,7 +49,7 @@ describe("email service", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("Auth failed");
+    expect(result.error).toBe("SMTP error");
   });
 
   it("builds message email with correct structure", async () => {

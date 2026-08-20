@@ -1,17 +1,18 @@
-import { google } from "googleapis";
+import nodemailer from "nodemailer";
 
-let gmailClient: ReturnType<typeof google.gmail> | null = null;
+let transporter: nodemailer.Transporter | null = null;
 
-function getGmail() {
-  if (!gmailClient) {
-    const oauth2Client = new google.auth.OAuth2(
-      process.env.GMAIL_CLIENT_ID,
-      process.env.GMAIL_CLIENT_SECRET,
-    );
-    oauth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
-    gmailClient = google.gmail({ version: "v1", auth: oauth2Client });
+function getTransporter(): nodemailer.Transporter {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_SENDER_EMAIL,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
   }
-  return gmailClient;
+  return transporter;
 }
 
 export interface SendEmailInput {
@@ -26,35 +27,17 @@ export interface SendEmailResult {
   error?: string;
 }
 
-function buildRawEmail(to: string, subject: string, html: string): string {
-  const from = process.env.GMAIL_SENDER_EMAIL || "devduoxai@gmail.com";
-  const messageParts = [
-    `From: Sipra <${from}>`,
-    `To: ${to}`,
-    `Subject: ${subject}`,
-    "MIME-Version: 1.0",
-    "Content-Type: text/html; charset=UTF-8",
-    "",
-    html,
-  ];
-  return Buffer.from(messageParts.join("\r\n"))
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
 export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult> {
   try {
-    const gmail = getGmail();
-    const raw = buildRawEmail(input.to, input.subject, input.html);
-
-    const result = await gmail.users.messages.send({
-      userId: "me",
-      requestBody: { raw },
+    const from = process.env.GMAIL_SENDER_EMAIL || "devduoxai@gmail.com";
+    const result = await getTransporter().sendMail({
+      from: `Sipra <${from}>`,
+      to: input.to,
+      subject: input.subject,
+      html: input.html,
     });
 
-    return { success: true, id: result.data.id ?? undefined };
+    return { success: true, id: result.messageId };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown email error";
     return { success: false, error: message };
