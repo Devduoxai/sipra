@@ -1,5 +1,6 @@
 {
-  "installCommand": "npx pnpm@10.33.4 install",
+  "installCommand": "npx pnpm@10.33.4 install && npx prisma generate",
+  "buildCommand": "npx prisma generate && next build",
   "crons": [
     {
       "path": "/api/cron/generate",
