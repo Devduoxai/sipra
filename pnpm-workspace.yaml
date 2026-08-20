@@ -1,5 +1,6 @@
 onlyBuiltDependencies:
   - "@google/genai"
+  - "@prisma/client"
   - "@prisma/engines"
   - prisma
   - protobufjs
