@@ -35,7 +35,11 @@ export default function PreferencesPage() {
       const data = await res.json();
       setPrefs(data);
       setSelectedTopics(data.topics);
-      setDeliveryTime(data.deliveryTime);
+      const storedUtc = parseInt(data.deliveryTime.split(":")[0], 10);
+      const now = new Date();
+      const utcOffset = -now.getTimezoneOffset() / 60;
+      const localHour = ((storedUtc + utcOffset) % 24 + 24) % 24;
+      setDeliveryTime(`${String(localHour).padStart(2, "0")}:00`);
       setLookupStatus("found");
     } catch {
       setLookupStatus("not-found");
@@ -54,10 +58,16 @@ export default function PreferencesPage() {
     setErrorMessage("");
 
     try {
+      const localHour = parseInt(deliveryTime.split(":")[0], 10);
+      const now = new Date();
+      const utcOffset = -now.getTimezoneOffset() / 60;
+      const utcHour = ((localHour - utcOffset) % 24 + 24) % 24;
+      const utcDeliveryTime = `${String(utcHour).padStart(2, "0")}:00`;
+
       const res = await fetch("/api/preferences", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, topics: selectedTopics, deliveryTime }),
+        body: JSON.stringify({ email, topics: selectedTopics, deliveryTime: utcDeliveryTime }),
       });
 
       const data = await res.json();
@@ -68,7 +78,7 @@ export default function PreferencesPage() {
         return;
       }
 
-      setPrefs((prev) => (prev ? { ...prev, topics: selectedTopics, deliveryTime } : prev));
+      setPrefs((prev) => (prev ? { ...prev, topics: selectedTopics, deliveryTime: utcDeliveryTime } : prev));
       setSaveStatus("success");
     } catch {
       setErrorMessage("Network error. Please try again.");
