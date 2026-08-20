@@ -74,6 +74,10 @@ export async function processUserMessage(user: UserDueForMessage): Promise<void>
     html: emailContent.html.replace("{{EMAIL}}", user.email),
   });
 
+  if (!result.success) {
+    console.error(`Email failed for ${user.email}:`, result.error);
+  }
+
   await db.message.update({
     where: { id: message.id },
     data: {
