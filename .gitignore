@@ -40,6 +40,9 @@ yarn-error.log*
 prisma/dev.db
 prisma/dev.db-journal
 
+# nested clone
+sipra/
+
 # vercel
 .vercel
 

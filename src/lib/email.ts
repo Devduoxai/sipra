@@ -1,14 +1,3 @@
-import { Resend } from "resend";
-
-let resendClient: Resend | null = null;
-
-function getClient(): Resend {
-  if (!resendClient) {
-    resendClient = new Resend(process.env.RESEND_API_KEY);
-  }
-  return resendClient;
-}
-
 export interface SendEmailInput {
   to: string;
   subject: string;
@@ -23,18 +12,32 @@ export interface SendEmailResult {
 
 export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult> {
   try {
-    const { data, error } = await getClient().emails.send({
-      from: "Sipra <onboarding@resend.dev>",
-      to: [input.to],
-      subject: input.subject,
-      html: input.html,
-    });
-
-    if (error) {
-      return { success: false, error: error.message };
+    const apiKey = process.env.BREVO_API_KEY;
+    if (!apiKey) {
+      return { success: false, error: "BREVO_API_KEY not set" };
     }
 
-    return { success: true, id: data?.id };
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": apiKey,
+      },
+      body: JSON.stringify({
+        sender: { name: "Sipra", email: process.env.BREVO_SENDER_EMAIL || "devduoxai@gmail.com" },
+        to: [{ email: input.to }],
+        subject: input.subject,
+        htmlContent: input.html,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.message || "Brevo API error" };
+    }
+
+    return { success: true, id: String(data.messageId) };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown email error";
     return { success: false, error: message };
