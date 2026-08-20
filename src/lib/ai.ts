@@ -42,28 +42,34 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
       ? `\n\nRecent messages to avoid repeating:\n${recentMessages.map((m) => `- ${m}`).join("\n")}`
       : "";
 
-  const response = await getClient().models.generateContent({
-    model: "gemini-3.6-flash",
-    contents: [
-      {
-        role: "user",
-        parts: [
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await getClient().models.generateContent({
+        model: "gemini-3.6-flash",
+        contents: [
           {
-            text: `${SYSTEM_PROMPT}\n\nWrite a daily positivity message about "${topic}".${recentContext}`,
+            role: "user",
+            parts: [
+              {
+                text: `${SYSTEM_PROMPT}\n\nWrite a daily positivity message about "${topic}".${recentContext}`,
+              },
+            ],
           },
         ],
-      },
-    ],
-    config: {
-      maxOutputTokens: 100,
-      temperature: 0.9,
-    },
-  });
+        config: {
+          maxOutputTokens: 100,
+          temperature: 0.9,
+        },
+      });
 
-  const content = response.text;
-  if (!content) {
-    throw new Error("AI returned empty response");
+      const content = response.text;
+      if (content) {
+        return { content: content.trim(), topic };
+      }
+    } catch {
+      if (attempt === 2) throw new Error("AI failed after 3 attempts");
+    }
   }
 
-  return { content: content.trim(), topic };
+  return { content: `Today's thought on ${topic}: Every small step forward is progress worth celebrating.`, topic };
 }
