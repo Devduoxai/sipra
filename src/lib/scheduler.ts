@@ -20,12 +20,8 @@ function parseTopics(topicsJson: string): Topic[] {
 }
 
 export async function findUsersDueForMessage(): Promise<UserDueForMessage[]> {
-  const now = new Date();
-  const currentHour = `${String(now.getUTCHours()).padStart(2, "0")}:00`;
-
   const preferences = await db.userPreference.findMany({
     where: {
-      deliveryTime: currentHour,
       user: { active: true },
     },
     include: { user: true },

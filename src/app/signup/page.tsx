@@ -26,10 +26,16 @@ export default function SignupPage() {
     setErrorMessage("");
 
     try {
+      const localHour = parseInt(deliveryTime.split(":")[0], 10);
+      const now = new Date();
+      const utcOffset = -now.getTimezoneOffset() / 60;
+      const utcHour = ((localHour - utcOffset) % 24 + 24) % 24;
+      const utcDeliveryTime = `${String(utcHour).padStart(2, "0")}:00`;
+
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name: name || undefined, topics: selectedTopics, deliveryTime }),
+        body: JSON.stringify({ email, name: name || undefined, topics: selectedTopics, deliveryTime: utcDeliveryTime }),
       });
 
       const data = await res.json();
