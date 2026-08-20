@@ -43,7 +43,7 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
       : "";
 
   const response = await getClient().models.generateContent({
-    model: "gemini-2.0-flash-001",
+    model: "gemini-2.0-flash",
     contents: [
       {
         role: "user",
