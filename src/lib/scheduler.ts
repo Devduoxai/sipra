@@ -92,7 +92,8 @@ export async function runDailyDelivery(): Promise<{ sent: number; failed: number
     try {
       await processUserMessage(user);
       sent++;
-    } catch {
+    } catch (e) {
+      console.error(`Failed to send to user:`, e);
       failed++;
     }
   }

@@ -12,7 +12,8 @@ export async function GET(request: Request) {
   try {
     const result = await runDailyDelivery();
     return NextResponse.json({ message: "Daily delivery complete", ...result });
-  } catch {
+  } catch (e) {
+    console.error("Delivery error:", e);
     return NextResponse.json({ error: "Delivery failed" }, { status: 500 });
   }
 }
