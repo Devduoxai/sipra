@@ -7,6 +7,9 @@ export default defineConfig({
     globals: true,
     setupFiles: [],
     include: ["__tests__/**/*.test.ts"],
+    env: {
+      AI_RETRY_DELAY_MS: "0",
+    },
   },
   resolve: {
     alias: {

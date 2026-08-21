@@ -88,23 +88,23 @@ export default function PreferencesPage() {
 
   if (lookupStatus === "found" && prefs) {
     return (
-      <div className="flex flex-1 flex-col items-center bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50 px-6 py-16 dark:from-amber-950 dark:via-orange-950 dark:to-yellow-950">
+      <div className="flex flex-1 flex-col items-center bg-gradient-to-b from-blue-50 via-blue-50 to-blue-50 px-6 py-16 dark:from-blue-950 dark:via-blue-950 dark:to-blue-950">
         <main className="flex w-full max-w-md flex-col gap-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-amber-900 dark:text-amber-100">
+            <h1 className="text-3xl font-bold text-blue-900 dark:text-blue-100">
               Your Preferences
             </h1>
-            <p className="mt-2 text-amber-700/70 dark:text-amber-300/70">
+            <p className="mt-2 text-blue-700/70 dark:text-blue-300/70">
               {prefs.name ? `Hi, ${prefs.name}` : prefs.email}
             </p>
           </div>
 
           <form onSubmit={handleSave} className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-amber-900 dark:text-amber-100">
+              <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
                 Topics <span className="text-red-500">*</span>
               </span>
-              <p className="text-xs text-amber-600/60 dark:text-amber-400/60">
+              <p className="text-xs text-blue-600/60 dark:text-blue-400/60">
                 Pick at least one
               </p>
               <div className="flex flex-wrap gap-2">
@@ -115,8 +115,8 @@ export default function PreferencesPage() {
                     onClick={() => toggleTopic(topic)}
                     className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
                       selectedTopics.includes(topic)
-                        ? "bg-amber-600 text-white shadow-sm"
-                        : "border border-amber-200 bg-white text-amber-700 hover:border-amber-400 dark:border-amber-700 dark:bg-amber-900 dark:text-amber-300"
+                        ? "bg-blue-600 text-white shadow-sm"
+                        : "border border-blue-200 bg-white text-blue-700 hover:border-blue-400 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-300"
                     }`}
                   >
                     {topic}
@@ -126,14 +126,14 @@ export default function PreferencesPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="time" className="text-sm font-medium text-amber-900 dark:text-amber-100">
+              <label htmlFor="time" className="text-sm font-medium text-blue-900 dark:text-blue-100">
                 Delivery time <span className="text-red-500">*</span>
               </label>
               <select
                 id="time"
                 value={deliveryTime}
                 onChange={(e) => setDeliveryTime(e.target.value)}
-                className="rounded-lg border border-amber-200 bg-white px-4 py-3 text-amber-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-amber-700 dark:bg-amber-900 dark:text-amber-100"
+                className="rounded-lg border border-blue-200 bg-white px-4 py-3 text-blue-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-100"
               >
                 {HOURS.map((h) => (
                   <option key={h} value={h}>
@@ -158,7 +158,7 @@ export default function PreferencesPage() {
             <button
               type="submit"
               disabled={saveStatus === "loading" || selectedTopics.length === 0}
-              className="rounded-full bg-amber-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-amber-600/25 transition-all hover:bg-amber-700 hover:shadow-xl hover:shadow-amber-600/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-full bg-blue-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saveStatus === "loading" ? "Saving..." : "Save changes"}
             </button>
@@ -166,7 +166,7 @@ export default function PreferencesPage() {
 
           <Link
             href="/"
-            className="text-center text-sm text-amber-600/60 hover:text-amber-700 dark:text-amber-400/60"
+            className="text-center text-sm text-blue-600/60 hover:text-blue-700 dark:text-blue-400/60"
           >
             ← Back to home
           </Link>
@@ -176,20 +176,20 @@ export default function PreferencesPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50 px-6 py-16 dark:from-amber-950 dark:via-orange-950 dark:to-yellow-950">
+    <div className="flex flex-1 flex-col items-center justify-center bg-gradient-to-b from-blue-50 via-blue-50 to-blue-50 px-6 py-16 dark:from-blue-950 dark:via-blue-950 dark:to-blue-950">
       <main className="flex w-full max-w-md flex-col gap-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-amber-900 dark:text-amber-100">
+          <h1 className="text-3xl font-bold text-blue-900 dark:text-blue-100">
             Manage Preferences
           </h1>
-          <p className="mt-2 text-amber-700/70 dark:text-amber-300/70">
+          <p className="mt-2 text-blue-700/70 dark:text-blue-300/70">
             Enter your email to view and update your settings.
           </p>
         </div>
 
         <form onSubmit={handleLookup} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <label htmlFor="email" className="text-sm font-medium text-amber-900 dark:text-amber-100">
+            <label htmlFor="email" className="text-sm font-medium text-blue-900 dark:text-blue-100">
               Email
             </label>
             <input
@@ -199,7 +199,7 @@ export default function PreferencesPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="rounded-lg border border-amber-200 bg-white px-4 py-3 text-amber-900 placeholder:text-amber-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-amber-700 dark:bg-amber-900 dark:text-amber-100"
+              className="rounded-lg border border-blue-200 bg-white px-4 py-3 text-blue-900 placeholder:text-blue-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-100"
             />
           </div>
 
@@ -212,7 +212,7 @@ export default function PreferencesPage() {
           <button
             type="submit"
             disabled={lookupStatus === "loading"}
-            className="rounded-full bg-amber-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-amber-600/25 transition-all hover:bg-amber-700 hover:shadow-xl hover:shadow-amber-600/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full bg-blue-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {lookupStatus === "loading" ? "Looking up..." : "Find my preferences"}
           </button>
@@ -220,7 +220,7 @@ export default function PreferencesPage() {
 
         <Link
           href="/"
-          className="text-center text-sm text-amber-600/60 hover:text-amber-700 dark:text-amber-400/60"
+          className="text-center text-sm text-blue-600/60 hover:text-blue-700 dark:text-blue-400/60"
         >
           ← Back to home
         </Link>
