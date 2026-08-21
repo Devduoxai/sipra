@@ -30,12 +30,12 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
 
   const prompt = `Write a daily motivational message about: ${topic}.${recentContext}
 
-Style: Like Les Brown or Brené Brown — warm, real, no corporate fluff.
+Style: Think like Jay Shetty, Oprah, and a wise life coach — warm, soulful, real.
 
 Rules:
-- Exactly 2 sentences only
-- Under 30 words total
-- Emotional and specific to the topic
+- Exactly 2 sentences only, under 30 words total
+- Never use generic corporate cliches like "crush it", "hustle hard", "you've got this", "level up"
+- Sound like a wise friend who truly sees you
 - One optional emoji at the end
 - Output ONLY the message`;
 
