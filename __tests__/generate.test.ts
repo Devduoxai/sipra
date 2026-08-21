@@ -54,10 +54,12 @@ describe("POST /api/messages/generate", () => {
     expect(res.status).toBe(200);
   });
 
-  it("returns 500 on AI error", async () => {
-    mockGenerateContent.mockRejectedValueOnce(new Error("API down"));
+  it("returns fallback message when AI fails", async () => {
+    mockGenerateContent.mockRejectedValue(new Error("API down"));
 
     const res = await callGenerate({ topic: "Confidence" });
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.content).toContain("tired");
   });
 });

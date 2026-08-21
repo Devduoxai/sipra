@@ -63,7 +63,10 @@ Rules:
     } catch (e) {
       console.error(`Gemini attempt ${attempt + 1} failed:`, e);
       if (attempt < 2) {
-        const delay = (attempt + 1) * 35000;
+        const delay =
+          process.env.AI_RETRY_DELAY_MS !== undefined
+            ? Number(process.env.AI_RETRY_DELAY_MS)
+            : (attempt + 1) * 35000;
         await new Promise((r) => setTimeout(r, delay));
       }
       if (attempt === 2) {
