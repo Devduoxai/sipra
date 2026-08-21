@@ -92,9 +92,12 @@ export async function runDailyDelivery(): Promise<{ sent: number; failed: number
   let sent = 0;
   let failed = 0;
 
-  for (const user of users) {
+  for (let i = 0; i < users.length; i++) {
+    if (i > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
     try {
-      await processUserMessage(user);
+      await processUserMessage(users[i]);
       sent++;
     } catch (e) {
       console.error(`Failed to send to user:`, e);
