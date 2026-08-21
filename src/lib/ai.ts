@@ -10,12 +10,6 @@ function getClient(): GoogleGenAI {
   return client;
 }
 
-const SYSTEM_PROMPT = `Write a short daily motivational message about the given topic. Think like a motivational speaker — inspiring, specific, and actionable.
-
-Keep it under 50 words. Be genuine and encouraging. No generic filler like "every small step counts."
-
-Do not include labels, topic names, greetings, or quotes attribution. Output ONLY the message.`;
-
 export interface GenerateMessageInput {
   topic: Topic;
   recentMessages: string[];
@@ -31,8 +25,18 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
 
   const recentContext =
     recentMessages.length > 0
-      ? `\n\nRecent messages to avoid repeating:\n${recentMessages.map((m) => `- ${m}`).join("\n")}`
+      ? `\nDo not repeat these: ${recentMessages.join("; ")}`
       : "";
+
+  const prompt = `You are a life coach. Write one short motivational message about: ${topic}.${recentContext}
+
+Rules:
+- Be specific to the topic
+- Sound warm and real like a mentor talking to a friend
+- Make the reader feel capable and inspired
+- 2 to 4 sentences maximum
+- Do not use quotes, labels, or formatting
+- Just output the message`;
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -41,11 +45,7 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
         contents: [
           {
             role: "user",
-            parts: [
-              {
-                text: `${SYSTEM_PROMPT}\n\nTopic: "${topic}"${recentContext}`,
-              },
-            ],
+            parts: [{ text: prompt }],
           },
         ],
         config: {
@@ -63,5 +63,8 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
     }
   }
 
-  return { content: `You showed up today, and that already puts you ahead of everyone who didn't. Keep going — your future self will thank you.`, topic };
+  return {
+    content: `You showed up today, and that already puts you ahead of everyone who didn't. Keep going — your future self will thank you.`,
+    topic,
+  };
 }
