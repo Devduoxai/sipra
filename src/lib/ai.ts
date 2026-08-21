@@ -30,12 +30,13 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
 
   const prompt = `Write a daily motivational message about: ${topic}.${recentContext}
 
-Style: Think like Jay Shetty, Oprah, and a wise life coach — warm, soulful, real.
+Write like a motivational speaker — deep, heartfelt, and empowering. Channel the energy of Jay Shetty, Oprah, and Coach Guru.
 
 Rules:
 - Exactly 2 sentences only, under 30 words total
-- Never use generic corporate cliches like "crush it", "hustle hard", "you've got this", "level up"
-- Sound like a wise friend who truly sees you
+- Never use generic corporate cliches like "crush it", "hustle hard", "you've got this", "level up", "boss up"
+- Speak directly to the reader like you mean it
+- Make them feel seen and capable
 - One optional emoji at the end
 - Output ONLY the message`;
 
