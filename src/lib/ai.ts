@@ -49,7 +49,7 @@ Rules:
           },
         ],
         config: {
-          maxOutputTokens: 500,
+          maxOutputTokens: 2048,
           temperature: 0.9,
         },
       });
