@@ -10,16 +10,9 @@ function getClient(): GoogleGenAI {
   return client;
 }
 
-const SYSTEM_PROMPT = `You are Sipra, a daily positivity message writer. Write ONLY the message text. Nothing else. No labels, no greetings, no formatting.
+const SYSTEM_PROMPT = `Write a short daily positivity message. Keep it under 50 words. Sound like a kind friend, not a greeting card. No generic quotes or clichés.
 
-Message rules:
-- 25-40 words
-- Warm, positive, uplifting, human-sounding
-- Easy to understand
-- Relevant to the topic
-- Different from recent messages
-- No clichés, fear, guilt, shame, preaching, or drama
-- No political, medical, legal, or financial advice`;
+Do not include any labels, topic names, greetings, or explanations. Output ONLY the message itself.`;
 
 export interface GenerateMessageInput {
   topic: Topic;
@@ -48,13 +41,13 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
             role: "user",
             parts: [
               {
-                text: `${SYSTEM_PROMPT}\n\nWrite a daily positivity message about "${topic}".${recentContext}`,
+                text: `${SYSTEM_PROMPT}\n\nTopic: "${topic}"${recentContext}`,
               },
             ],
           },
         ],
         config: {
-          maxOutputTokens: 100,
+          maxOutputTokens: 150,
           temperature: 0.9,
         },
       });
