@@ -58,7 +58,8 @@ Rules:
       if (content) {
         return { content: content.trim(), topic };
       }
-    } catch {
+    } catch (e) {
+      console.error(`Gemini attempt ${attempt + 1} failed:`, e);
       if (attempt === 2) throw new Error("AI failed after 3 attempts");
     }
   }
