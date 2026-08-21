@@ -18,7 +18,8 @@ Message rules:
 - Easy to understand
 - Relevant to the topic
 - Different from recent messages
-- No clichés, fear, guilt, shame, preaching, or drama`;
+- No clichés, fear, guilt, shame, preaching, or drama
+- No political, medical, legal, or financial advice`;
 
 export interface GenerateMessageInput {
   topic: Topic;
