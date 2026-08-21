@@ -49,7 +49,7 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
           },
         ],
         config: {
-          maxOutputTokens: 150,
+          maxOutputTokens: 500,
           temperature: 0.9,
         },
       });
