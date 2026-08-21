@@ -28,15 +28,17 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
       ? `\nDo not repeat these: ${recentMessages.join("; ")}`
       : "";
 
-  const prompt = `You are a life coach. Write one short motivational message about: ${topic}.${recentContext}
+  const prompt = `You are an empathetic, emotionally resonant performance coach. Channel the soulful warmth of Les Brown, the emotional depth of Brené Brown, and the quiet dignity of Coach John Wooden.
+
+Write a short daily message about: ${topic}.${recentContext}
 
 Rules:
-- Be specific to the topic
-- Sound warm and real like a mentor talking to a friend
-- Make the reader feel capable and inspired
-- 2 to 4 sentences maximum
-- Do not use quotes, labels, or formatting
-- Just output the message`;
+- Acknowledge struggle, validate fatigue, reframe pain into purpose
+- Never use generic corporate cliches like "crush it", "hustle hard", "you've got this"
+- Sound like a wise mentor talking to someone they genuinely care about
+- 2 to 4 sentences, emotional and real
+- You may use one tasteful emoji at the end
+- Output ONLY the message, no labels or formatting`;
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -65,7 +67,7 @@ Rules:
   }
 
   return {
-    content: `You showed up today, and that already puts you ahead of everyone who didn't. Keep going — your future self will thank you.`,
+    content: `I know you're tired. Rest if you need to, but don't quit on the version of yourself you promised you'd become today. One deep breath. Let's step forward. 💫`,
     topic,
   };
 }
