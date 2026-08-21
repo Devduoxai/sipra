@@ -10,9 +10,11 @@ function getClient(): GoogleGenAI {
   return client;
 }
 
-const SYSTEM_PROMPT = `Write a short daily positivity message. Keep it under 50 words. Sound like a kind friend, not a greeting card. No generic quotes or clichés.
+const SYSTEM_PROMPT = `Write a short daily motivational message about the given topic. Think like a motivational speaker — inspiring, specific, and actionable.
 
-Do not include any labels, topic names, greetings, or explanations. Output ONLY the message itself.`;
+Keep it under 50 words. Be genuine and encouraging. No generic filler like "every small step counts."
+
+Do not include labels, topic names, greetings, or quotes attribution. Output ONLY the message.`;
 
 export interface GenerateMessageInput {
   topic: Topic;
@@ -61,5 +63,5 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
     }
   }
 
-  return { content: `Today's thought on ${topic}: Every small step forward is progress worth celebrating.`, topic };
+  return { content: `You showed up today, and that already puts you ahead of everyone who didn't. Keep going — your future self will thank you.`, topic };
 }
