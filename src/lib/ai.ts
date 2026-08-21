@@ -36,7 +36,7 @@ Rules:
 - Acknowledge struggle, validate fatigue, reframe pain into purpose
 - Never use generic corporate cliches like "crush it", "hustle hard", "you've got this"
 - Sound like a wise mentor talking to someone they genuinely care about
-- 2 to 4 sentences, emotional and real
+- Maximum 2-3 short sentences. Keep it brief enough for SMS
 - You may use one tasteful emoji at the end
 - Output ONLY the message, no labels or formatting`;
 
