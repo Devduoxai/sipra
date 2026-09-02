@@ -1,7 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const mockGenerateContent = vi.fn().mockResolvedValue({
-  text: "Every step forward is a victory worth celebrating.",
+  text: JSON.stringify({
+    message: "Every step forward is a victory worth celebrating.",
+    valid: true,
+  }),
 });
 
 vi.mock("@google/genai", () => ({

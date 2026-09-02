@@ -73,10 +73,13 @@ pnpm db:migrate     # Run Prisma migration
 
 ## AI Message Rules
 
+Messages are short — like a text message — but always complete sentences with full stops.
+
 Messages must be:
 
-- 15-40 words
-- Warm, positive, uplifting
+- 10-25 words, short enough to read in one glance
+- Complete sentences that end with a period (no fragments, no trailing ellipses)
+- Warm, direct, empowering — the voice of Oprah, Mel Robbins, Jay Shetty, Martha Beck, and Tony Robbins
 - Human sounding, easy to understand
 - Relevant to user's selected topics
 - Different from recent messages

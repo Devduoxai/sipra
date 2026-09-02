@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+const validPayload = (message: string) => JSON.stringify({ message, valid: true });
+
 const mockGenerateContent = vi.fn().mockResolvedValue({
-  text: "You are capable of amazing things today.",
+  text: validPayload("You are capable of amazing things today."),
 });
 
 vi.mock("@google/genai", () => {
@@ -35,7 +37,7 @@ describe("AI message generation", () => {
 
   it("includes recent messages in context to avoid repetition", async () => {
     mockGenerateContent.mockResolvedValueOnce({
-      text: "Fresh message here.",
+      text: validPayload("Fresh message here."),
     });
 
     const { generateMessage } = await import("@/lib/ai");
@@ -50,5 +52,96 @@ describe("AI message generation", () => {
     const userText = callArgs.contents[0].parts[0].text;
     expect(userText).toContain("Previous message one");
     expect(userText).toContain("Previous message two");
+  });
+
+  it("clamps overly long messages to text-message size", async () => {
+    const longText =
+      "You are incredible and capable of absolutely anything you set your mind to today my friend. " +
+      "We all know deep down that you have so much potential inside you just waiting to come out. " +
+      "Every single day is a brand new opportunity to become the strongest version of yourself.";
+    mockGenerateContent.mockResolvedValueOnce({ text: validPayload(longText) });
+
+    const { generateMessage } = await import("@/lib/ai");
+
+    const result = await generateMessage({ topic: "Personal Growth", recentMessages: [] });
+
+    expect(result.content.trim().split(/\s+/).length).toBeLessThanOrEqual(25);
+    expect(result.content.trim().endsWith(".")).toBe(true);
+  });
+
+  it("normalizes a message without a full stop", async () => {
+    mockGenerateContent.mockResolvedValueOnce({
+      text: validPayload("You belong exactly where you are right now"),
+    });
+
+    const { generateMessage } = await import("@/lib/ai");
+
+    const result = await generateMessage({ topic: "Confidence", recentMessages: [] });
+
+    expect(result.content).toBe("You belong exactly where you are right now.");
+  });
+
+  it("recognizes fragments as incomplete sentences", async () => {
+    const { isCompleteSentence } = await import("@/lib/ai");
+
+    expect(isCompleteSentence("The work you do when.")).toBe(false);
+    expect(isCompleteSentence("Because you believe that.")).toBe(false);
+    expect(isCompleteSentence("Keep going with.")).toBe(false);
+    expect(isCompleteSentence("Your unique perspective.")).toBe(false);
+  });
+
+  it("accepts real complete sentences", async () => {
+    const { isCompleteSentence } = await import("@/lib/ai");
+
+    expect(isCompleteSentence("The work you do matters deeply.")).toBe(true);
+    expect(isCompleteSentence("You belong exactly where you are right now.")).toBe(true);
+    expect(isCompleteSentence("Take the first small step today.")).toBe(true);
+  });
+
+  it("retries when the model marks the message as invalid", async () => {
+    mockGenerateContent
+      .mockResolvedValueOnce({
+        text: JSON.stringify({ message: "Your unique perspective.", valid: false }),
+      })
+      .mockResolvedValueOnce({
+        text: validPayload("Your hard work today is building a brighter tomorrow."),
+      });
+
+    const { generateMessage } = await import("@/lib/ai");
+
+    const result = await generateMessage({ topic: "Personal Growth", recentMessages: [] });
+
+    expect(mockGenerateContent).toHaveBeenCalledTimes(2);
+    expect(result.content).toBe("Your hard work today is building a brighter tomorrow.");
+  });
+
+  it("retries when the model returns malformed JSON", async () => {
+    mockGenerateContent.mockResolvedValueOnce({ text: "not valid json" }).mockResolvedValueOnce({
+      text: validPayload("You deserve to shine today."),
+    });
+
+    const { generateMessage } = await import("@/lib/ai");
+
+    const result = await generateMessage({ topic: "Confidence", recentMessages: [] });
+
+    expect(mockGenerateContent).toHaveBeenCalledTimes(2);
+    expect(result.content).toBe("You deserve to shine today.");
+  });
+
+  it("retries when the heuristic rejects a structurally bad message even if marked valid", async () => {
+    mockGenerateContent
+      .mockResolvedValueOnce({
+        text: JSON.stringify({ message: "Your unique perspective.", valid: true }),
+      })
+      .mockResolvedValueOnce({
+        text: validPayload("Your unique perspective is a gift the world needs."),
+      });
+
+    const { generateMessage } = await import("@/lib/ai");
+
+    const result = await generateMessage({ topic: "Personal Growth", recentMessages: [] });
+
+    expect(mockGenerateContent).toHaveBeenCalledTimes(2);
+    expect(result.content).toBe("Your unique perspective is a gift the world needs.");
   });
 });
