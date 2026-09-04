@@ -259,6 +259,39 @@ interface SipraPayload {
   valid: boolean;
 }
 
+function normalizedKey(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// True if the new message essentially repeats a recent one (same wording or
+// largely overlapping), so we retry instead of mailing a duplicate.
+export function isDuplicateMessage(message: string, recentMessages: string[]): boolean {
+  const fresh = normalizedKey(message);
+  if (!fresh) {
+    return true;
+  }
+
+  const freshWords = fresh.split(" ");
+
+  return recentMessages.some((recent) => {
+    const key = normalizedKey(recent);
+    if (!key) {
+      return false;
+    }
+    if (key === fresh) {
+      return true;
+    }
+    const recentWords = key.split(" ");
+    const overlap = freshWords.filter((w) => recentWords.includes(w)).length;
+    const shorter = Math.min(freshWords.length, recentWords.length);
+    return shorter > 0 && overlap / shorter >= 0.75;
+  });
+}
+
 function parseSipraPayload(raw: string | undefined | null): SipraPayload | null {
   if (!raw) {
     return null;
@@ -297,7 +330,7 @@ export async function generateMessage(input: GenerateMessageInput): Promise<Gene
 
   const prompt = `Write a daily motivational message about: ${topic}.${recentContext}
 
-Write like a warm, wise friend who really believes in you — blend the voices of Oprah, Mel Robbins, Jay Shetty, Martha Beck, and Tony Robbins.
+Write like a warm, wise friend who truly believes in you — the voice of the world's best life coaches: honest, direct, uplifting, and human. Never repetitive, preachy, or generic.
 
 Rules:
 - Short like a text message: exactly 1-2 sentences, 10-25 words total
@@ -306,7 +339,8 @@ Rules:
 - Land one small, doable nudge at the end (e.g. "Take the first small step today")
 - Never use corporate cliches like "crush it", "hustle hard", "you've got this", "level up", "boss up"
 - One optional emoji at the end
-- The message must be a complete, meaningful sentence (subject + verb), and sound warm and human in the voice above
+- The message must be a complete, meaningful sentence (subject + verb), and sound warm and human
+- It must be clearly different from every recent message listed above — fresh wording, fresh idea
 
 Return ONLY JSON, no other text:
 {
@@ -335,7 +369,12 @@ Return ONLY JSON, no other text:
       const parsed = parseSipraPayload(response.text);
       if (parsed) {
         const normalized = normalizeMessage(parsed.message);
-        if (parsed.valid && normalized && isCompleteSentence(normalized)) {
+        if (
+          parsed.valid &&
+          normalized &&
+          isCompleteSentence(normalized) &&
+          !isDuplicateMessage(normalized, recentMessages)
+        ) {
           return { content: normalized, topic };
         }
       }

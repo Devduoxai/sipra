@@ -144,4 +144,55 @@ describe("AI message generation", () => {
     expect(mockGenerateContent).toHaveBeenCalledTimes(2);
     expect(result.content).toBe("Your unique perspective is a gift the world needs.");
   });
+
+  it("treats an exact duplicate as a duplicate", async () => {
+    const { isDuplicateMessage } = await import("@/lib/ai");
+
+    expect(
+      isDuplicateMessage("You are capable of amazing things today.", [
+        "You are capable of amazing things today.",
+      ]),
+    ).toBe(true);
+    expect(
+      isDuplicateMessage("You are capable of amazing things today.", ["Unrelated thought."]),
+    ).toBe(false);
+  });
+
+  it("treats a near-repeat with mostly the same words as a duplicate", async () => {
+    const { isDuplicateMessage } = await import("@/lib/ai");
+
+    expect(
+      isDuplicateMessage("You are capable of amazing things today.", [
+        "You are capable of amazing things right now.",
+      ]),
+    ).toBe(true);
+    expect(
+      isDuplicateMessage("The quiet work you do shapes everything.", [
+        "The quiet work you do shapes your whole future.",
+      ]),
+    ).toBe(true);
+  });
+
+  it("retries when the model returns a message already sent recently", async () => {
+    mockGenerateContent
+      .mockResolvedValueOnce({
+        text: validPayload("The quiet work you do shapes your future."),
+      })
+      .mockResolvedValueOnce({
+        text: validPayload("Small daily choices build a life you are proud of."),
+      })
+      .mockResolvedValueOnce({
+        text: validPayload("Each small step today builds a stronger tomorrow."),
+      });
+
+    const { generateMessage } = await import("@/lib/ai");
+
+    const result = await generateMessage({
+      topic: "Goals & Success",
+      recentMessages: ["The quiet work you do shapes your future."],
+    });
+
+    expect(mockGenerateContent).toHaveBeenCalledTimes(3);
+    expect(result.content).toBe("Each small step today builds a stronger tomorrow.");
+  });
 });

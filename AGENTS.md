@@ -79,10 +79,10 @@ Messages must be:
 
 - 10-25 words, short enough to read in one glance
 - Complete sentences that end with a period (no fragments, no trailing ellipses)
-- Warm, direct, empowering — the voice of Oprah, Mel Robbins, Jay Shetty, Martha Beck, and Tony Robbins
+- Warm, direct, empowering — the voice of the world's best life coaches (think Oprah, Mel Robbins, Jay Shetty, Martha Beck, Tony Robbins, but never limited to them)
 - Human sounding, easy to understand
 - Relevant to user's selected topics
-- Different from recent messages
+- Clearly different from recent messages (enforced in code — a near-duplicate is retried, not sent)
 
 Messages must NOT:
 
