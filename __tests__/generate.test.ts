@@ -63,6 +63,8 @@ describe("POST /api/messages/generate", () => {
     const res = await callGenerate({ topic: "Confidence" });
     expect(res.status).toBe(200);
     const data = await res.json();
-    expect(data.content).toContain("tired");
+    expect(typeof data.content).toBe("string");
+    expect(data.content.length).toBeGreaterThan(0);
+    expect(data.content.endsWith(".")).toBe(true);
   });
 });

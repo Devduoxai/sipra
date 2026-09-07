@@ -195,4 +195,39 @@ describe("AI message generation", () => {
     expect(mockGenerateContent).toHaveBeenCalledTimes(3);
     expect(result.content).toBe("Each small step today builds a stronger tomorrow.");
   });
+
+  it("picks a fallback that differs from recent messages", async () => {
+    const { pickFallbackMessage } = await import("@/lib/ai");
+
+    const recent = [
+      "I know you're tired. Rest if you need to, but don't leave the person you promised yourself you'd become. One deep breath, then one small step. 💫",
+    ];
+
+    const picked = pickFallbackMessage(recent);
+    expect(picked).not.toContain("tired");
+    expect(typeof picked).toBe("string");
+  });
+
+  it("always returns a fallback even when recent list is empty", async () => {
+    const { pickFallbackMessage } = await import("@/lib/ai");
+
+    const picked = pickFallbackMessage([]);
+    expect(typeof picked).toBe("string");
+    expect(picked.length).toBeGreaterThan(0);
+  });
+
+  it("returns a fallback from the pool when AI generation fully fails", async () => {
+    mockGenerateContent.mockRejectedValue(new Error("API down"));
+
+    const { generateMessage } = await import("@/lib/ai");
+
+    const result = await generateMessage({
+      topic: "Personal Growth",
+      recentMessages: [],
+    });
+
+    expect(typeof result.content).toBe("string");
+    expect(result.content.length).toBeGreaterThan(0);
+    expect(result.content.endsWith(".")).toBe(true);
+  });
 });

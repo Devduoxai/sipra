@@ -209,6 +209,27 @@ const VERBS = new Set([
   "allowed",
 ]);
 
+const FALLBACK_MESSAGES = [
+  "I know you're tired. Rest if you need to, but don't leave the person you promised yourself you'd become. One deep breath, then one small step. 💫",
+  "Every small honest step you take today is building a life your future self will thank you for. 🌱",
+  "You have carried more than anyone can see. Give yourself real credit for how far you have come. 🌟",
+  "One calm breath at a time, you are becoming someone your younger self would admire. 🌿",
+  "Progress is measured in inches, and every single inch you make today genuinely counts. ✨",
+  "You do not need to be perfect today. All you need is to be a little more kind to yourself. 🌼",
+  "Quiet consistency is its own kind of courage. Show up softly, and let today unfold. ☀️",
+  "Your harder today than yesterday is enough. Keep walking, even slow, in the direction you want. 💪",
+];
+
+// Picks a fallback that hasn't been sent recently, so even when the AI is
+// unavailable or quota is exhausted the daily message stays fresh.
+export function pickFallbackMessage(recentMessages: string[]): string {
+  const available = FALLBACK_MESSAGES.filter(
+    (fallback) => !isDuplicateMessage(fallback, recentMessages),
+  );
+  const pool = available.length > 0 ? available : FALLBACK_MESSAGES;
+  return pool[Math.floor(Math.random() * pool.length)] ?? FALLBACK_MESSAGES[0];
+}
+
 export function isCompleteSentence(text: string): boolean {
   const trimmed = text.trim();
 
@@ -393,10 +414,9 @@ Return ONLY JSON, no other text:
     }
   }
 
+  console.warn(`Gemini failed after 3 attempts for topic "${topic}", using fallback message`);
   return {
-    content: normalizeMessage(
-      "I know you're tired. Rest if you need to, but don't leave the person you promised yourself you'd become. One deep breath, then one small step. 💫",
-    ),
+    content: normalizeMessage(pickFallbackMessage(recentMessages)),
     topic,
   };
 }
