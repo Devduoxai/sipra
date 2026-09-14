@@ -18,7 +18,26 @@ export async function POST(request: Request) {
 
     const existing = await db.user.findUnique({ where: { email } });
     if (existing) {
-      return NextResponse.json({ error: "Email already registered" }, { status: 409 });
+      const user = await db.user.update({
+        where: { id: existing.id },
+        data: {
+          active: true,
+          ...(name ? { name } : {}),
+        },
+      });
+
+      await db.userPreference.update({
+        where: { userId: existing.id },
+        data: {
+          topics: JSON.stringify(topics),
+          deliveryTime,
+        },
+      });
+
+      return NextResponse.json(
+        { message: "Signup successful", userId: user.id, updated: true },
+        { status: 200 },
+      );
     }
 
     const user = await db.user.create({
@@ -36,7 +55,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(
-      { message: "Signup successful", userId: user.id },
+      { message: "Signup successful", userId: user.id, updated: false },
       { status: 201 },
     );
   } catch (e) {

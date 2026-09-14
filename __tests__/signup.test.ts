@@ -2,12 +2,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const mockCreate = vi.fn();
 const mockFindUnique = vi.fn();
+const mockUpdateUser = vi.fn();
+const mockUpdatePreferences = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
     user: {
       create: mockCreate,
       findUnique: mockFindUnique,
+      update: mockUpdateUser,
+    },
+    userPreference: {
+      update: mockUpdatePreferences,
     },
   },
 }));
@@ -44,6 +50,7 @@ describe("POST /api/signup", () => {
     expect(res.status).toBe(201);
     expect(data.message).toBe("Signup successful");
     expect(data.userId).toBe("user-1");
+    expect(data.updated).toBe(false);
     expect(mockCreate).toHaveBeenCalledOnce();
   });
 
@@ -82,15 +89,59 @@ describe("POST /api/signup", () => {
     expect(res.status).toBe(400);
   });
 
-  it("returns 409 on duplicate email", async () => {
+  it("updates topics and delivery time on duplicate email and returns 200", async () => {
     mockFindUnique.mockResolvedValue({ id: "existing-user" });
+    mockUpdateUser.mockResolvedValue({ id: "existing-user", email: "alice@example.com" });
+    mockUpdatePreferences.mockResolvedValue({
+      userId: "existing-user",
+      topics: JSON.stringify(validBody.topics),
+      deliveryTime: validBody.deliveryTime,
+    });
 
     const res = await callSignup(validBody);
     const data = await res.json();
 
-    expect(res.status).toBe(409);
-    expect(data.error).toBe("Email already registered");
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("Signup successful");
+    expect(data.updated).toBe(true);
     expect(mockCreate).not.toHaveBeenCalled();
+    expect(mockUpdateUser).toHaveBeenCalledWith({
+      where: { id: "existing-user" },
+      data: { active: true, name: "Alice" },
+    });
+    expect(mockUpdatePreferences).toHaveBeenCalledWith({
+      where: { userId: "existing-user" },
+      data: {
+        topics: JSON.stringify(validBody.topics),
+        deliveryTime: validBody.deliveryTime,
+      },
+    });
+  });
+
+  it("reactivates a previously inactive user on duplicate email", async () => {
+    mockFindUnique.mockResolvedValue({ id: "existing-user" });
+    mockUpdateUser.mockResolvedValue({ id: "existing-user" });
+    mockUpdatePreferences.mockResolvedValue({ userId: "existing-user" });
+
+    const res = await callSignup(validBody);
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(data.updated).toBe(true);
+    const updateCall = mockUpdateUser.mock.calls[0][0];
+    expect(updateCall.data.active).toBe(true);
+  });
+
+  it("keeps the existing name when re-signup provides no name", async () => {
+    mockFindUnique.mockResolvedValue({ id: "existing-user" });
+    mockUpdateUser.mockResolvedValue({ id: "existing-user" });
+    mockUpdatePreferences.mockResolvedValue({ userId: "existing-user" });
+
+    const res = await callSignup({ ...validBody, name: undefined });
+    expect(res.status).toBe(200);
+
+    const updateCall = mockUpdateUser.mock.calls[0][0];
+    expect(updateCall.data).toEqual({ active: true });
   });
 
   it("accepts signup without name", async () => {
